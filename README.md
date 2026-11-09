@@ -19,6 +19,10 @@ Each vehicle on the account becomes one device with these entities:
 
 The integration polls the cloud every 60 seconds. The car name comes from the name set in the EVO-START app.
 
+Distance, speed and temperature follow the Home Assistant unit system: mi, mph and °F on US customary, km, km/h and °C on metric. To change one sensor, set its unit in the entity settings.
+
+There is no fuel economy (MPG) sensor. The module's trip fuel value is a fixed fraction of the trip distance, the same for every vehicle, so it is an estimate, not a measurement.
+
 ## Account and sessions
 
 The EVO-START server allows one **web** session and one **mobile** session per account. A new login ends the earlier session of the same kind. The Android and iOS apps share the mobile session.

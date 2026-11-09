@@ -1,6 +1,7 @@
 """The EVO-START integration."""
 from __future__ import annotations
 
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, Platform
 from homeassistant.core import HomeAssistant, callback
@@ -21,6 +22,12 @@ V2_UNIQUE_ID_SUFFIXES = {
     "_dernier_trajet_vitesse_max": "_last_trip_max_speed",
 }
 V2_TRACKER_PREFIX = "evo_start_traceur_"
+
+# Sensors that had no device class before 3.0.2: unique ID suffix -> (device class, native unit)
+UNIT_SYSTEM_SENSORS = {
+    "_mileage": (SensorDeviceClass.DISTANCE, "km"),
+    "_speed": (SensorDeviceClass.SPEED, "km/h"),
+}
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
@@ -55,6 +62,35 @@ def _migrate_v2_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
             registry.async_remove(entity.entity_id)
         else:
             registry.async_update_entity(entity.entity_id, new_unique_id=new_uid)
+
+
+@callback
+def _adopt_unit_system(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Give pre-3.0.2 distance and speed sensors the display unit of the HA unit system.
+
+    Home Assistant applies the unit system only when an entity is first registered.
+    """
+    registry = er.async_get(hass)
+    for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
+        match = next((v for k, v in UNIT_SYSTEM_SENSORS.items() if entity.unique_id.endswith(k)), None)
+        if entity.domain != "sensor" or match is None:
+            continue
+        options = entity.options.get("sensor", {})
+        if options.get("unit_of_measurement") or "sensor.private" in entity.options:
+            continue
+        device_class, native_unit = match
+        unit = hass.config.units.get_converted_unit(device_class, native_unit)
+        if unit and unit != native_unit:
+            registry.async_update_entity_options(
+                entity.entity_id, "sensor", {**options, "unit_of_measurement": unit}
+            )
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    if entry.version == 1 and entry.minor_version < 2:
+        _adopt_unit_system(hass, entry)
+        hass.config_entries.async_update_entry(entry, minor_version=2)
+    return entry.version == 1
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
