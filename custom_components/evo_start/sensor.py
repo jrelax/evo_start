@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, device_info, vehicle_name
 
@@ -14,6 +15,14 @@ _LOGGER = logging.getLogger(__name__)
 
 def _open_closed(x: Any) -> str:
     return "🔓 Open" if str(x) == "1" else ("🔒 Closed" if str(x) == "0" else "❓ Unknown")
+
+
+def _timestamp(x: Any):
+    return dt_util.utc_from_timestamp(int(x)) if int(x) > 0 else None
+
+
+def _text(x: Any) -> str:
+    return str(x)[:255]
 
 
 def _sensor(
@@ -25,10 +34,11 @@ def _sensor(
     unit: str | None = None,
     device_class: SensorDeviceClass | None = None,
     state_class: SensorStateClass | None = None,
+    precision: int | None = None,
 ) -> dict[str, Any]:
     return {
         "name": name, "icon": icon, "key": key, "source": source, "transform": transform,
-        "unit": unit, "device_class": device_class, "state_class": state_class,
+        "unit": unit, "device_class": device_class, "state_class": state_class, "precision": precision,
     }
 
 
@@ -73,15 +83,15 @@ SENSOR_TYPES: dict[str, dict[str, Any]] = {
     "right_rear_door": _sensor("Right Rear Door", "mdi:car-door", "dor_rb", "flags", _open_closed),
     "trip_odometer": _sensor(
         "Trip Odometer", "mdi:counter", "odometer_km", "trips", float,
-        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING,
+        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING, 1,
     ),
     "distance_today": _sensor(
         "Distance Today", "mdi:map-marker-distance", "distance_today_km", "trips", float,
-        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING,
+        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING, 1,
     ),
     "distance_this_month": _sensor(
         "Distance This Month", "mdi:calendar-month-outline", "distance_month_km", "trips", float,
-        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING,
+        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING, 1,
     ),
     "trips_today": _sensor(
         "Trips Today", "mdi:car-clock", "trips_today", "trips", int,
@@ -89,11 +99,24 @@ SENSOR_TYPES: dict[str, dict[str, Any]] = {
     ),
     "last_trip_distance": _sensor(
         "Last Trip Distance", "mdi:map-marker-path", "last_trip_km", "trips", float,
-        "km", SensorDeviceClass.DISTANCE,
+        "km", SensorDeviceClass.DISTANCE, None, 1,
     ),
     "last_trip_max_speed": _sensor(
         "Last Trip Max Speed", "mdi:speedometer", "last_trip_max_speed", "trips", int,
-        "km/h", SensorDeviceClass.SPEED,
+        "km/h", SensorDeviceClass.SPEED, None, 0,
+    ),
+    "last_trip_duration": _sensor(
+        "Last Trip Duration", "mdi:timer-outline", "last_trip_duration_min", "trips", int,
+        "min", SensorDeviceClass.DURATION, None, 0,
+    ),
+    "last_trip_from": _sensor("Last Trip From", "mdi:map-marker-outline", "last_trip_from", "trips", _text),
+    "last_trip_to": _sensor("Last Trip To", "mdi:map-marker-check-outline", "last_trip_to", "trips", _text),
+    "last_report": _sensor(
+        "Last Report", "mdi:clock-check-outline", "tdt", "lloc", _timestamp, None, SensorDeviceClass.TIMESTAMP,
+    ),
+    "subscription_expires": _sensor(
+        "Subscription Expires", "mdi:calendar-alert", "expire_date", "vehicle", _timestamp,
+        None, SensorDeviceClass.TIMESTAMP,
     ),
 }
 
@@ -119,6 +142,8 @@ class EvoStartSensor(CoordinatorEntity, SensorEntity):
         self._attr_native_unit_of_measurement = sensor_cfg["unit"]
         self._attr_device_class = sensor_cfg["device_class"]
         self._attr_state_class = sensor_cfg["state_class"]
+        if sensor_cfg["precision"] is not None:
+            self._attr_suggested_display_precision = sensor_cfg["precision"]
         self._attr_device_info = device_info(vehicle_id, name)
 
     @property
@@ -134,6 +159,8 @@ class EvoStartSensor(CoordinatorEntity, SensorEntity):
                 return None
             if source == "flags":
                 raw = vehicle_flags.get(key)
+            elif source == "vehicle":
+                raw = vehicle_data.get(key)
             else:
                 raw = vehicle_data["lloc"].get(key)
         try:
