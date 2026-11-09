@@ -49,7 +49,7 @@ SENSOR_TYPES: dict[str, dict[str, Any]] = {
     ),
     "temperature": _sensor(
         "Vehicle Temperature", "mdi:thermometer", "temp", "lloc", float,
-        "°C", None, SensorStateClass.MEASUREMENT,
+        "°C", SensorDeviceClass.TEMPERATURE, SensorStateClass.MEASUREMENT, 0,
     ),
     "mileage": _sensor(
         "Vehicle Mileage", "mdi:counter", "mileage", "lloc", int,
