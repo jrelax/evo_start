@@ -240,7 +240,12 @@ class EvoStartCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if not tid:
                 continue
             lloc = row.get("lloc") or {}
-            vehicles[tid] = {"lloc": lloc, "carinfo": row.get("carinfo", {}), "tid": tid}
+            vehicles[tid] = {
+                "lloc": lloc,
+                "carinfo": row.get("carinfo") or {},
+                "dev_name": row.get("dev_name"),
+                "tid": tid,
+            }
             flags[tid] = self.decode_vst(lloc.get("vst", ""))
             try:
                 trips[tid] = await self._fetch_trips(tid)

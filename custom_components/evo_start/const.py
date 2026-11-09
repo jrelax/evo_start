@@ -15,4 +15,4 @@ def device_info(vehicle_id: str, vehicle_name: str) -> dict:
 
 def vehicle_name(coordinator, vehicle_id: str) -> str:
     data = coordinator.get_vehicle_data(vehicle_id) or {}
-    return data.get("carinfo", {}).get("cname", f"Vehicle {vehicle_id}")
+    return data.get("dev_name") or (data.get("carinfo") or {}).get("cname") or f"Vehicle {vehicle_id}"
