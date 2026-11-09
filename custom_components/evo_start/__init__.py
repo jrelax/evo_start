@@ -23,10 +23,11 @@ V2_UNIQUE_ID_SUFFIXES = {
 }
 V2_TRACKER_PREFIX = "evo_start_traceur_"
 
-# Sensors that had no device class before 3.0.2: unique ID suffix -> (device class, native unit)
+# Sensors registered before they had a device class: unique ID suffix -> (device class, native unit)
 UNIT_SYSTEM_SENSORS = {
     "_mileage": (SensorDeviceClass.DISTANCE, "km"),
     "_speed": (SensorDeviceClass.SPEED, "km/h"),
+    "_temperature": (SensorDeviceClass.TEMPERATURE, "°C"),
 }
 
 PLATFORMS: list[Platform] = [
@@ -76,10 +77,14 @@ def _adopt_unit_system(hass: HomeAssistant, entry: ConfigEntry) -> None:
         if entity.domain != "sensor" or match is None:
             continue
         options = entity.options.get("sensor", {})
-        if options.get("unit_of_measurement") or "sensor.private" in entity.options:
-            continue
         device_class, native_unit = match
-        unit = hass.config.units.get_converted_unit(device_class, native_unit)
+        suggested = entity.options.get("sensor.private", {}).get("suggested_unit_of_measurement")
+        if options.get("unit_of_measurement") or (suggested and suggested != native_unit):
+            continue
+        if device_class == SensorDeviceClass.TEMPERATURE:
+            unit = hass.config.units.temperature_unit
+        else:
+            unit = hass.config.units.get_converted_unit(device_class, native_unit)
         if unit and unit != native_unit:
             registry.async_update_entity_options(
                 entity.entity_id, "sensor", {**options, "unit_of_measurement": unit}
@@ -87,9 +92,9 @@ def _adopt_unit_system(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    if entry.version == 1 and entry.minor_version < 2:
+    if entry.version == 1 and entry.minor_version < 3:
         _adopt_unit_system(hass, entry)
-        hass.config_entries.async_update_entry(entry, minor_version=2)
+        hass.config_entries.async_update_entry(entry, minor_version=3)
     return entry.version == 1
 
 
