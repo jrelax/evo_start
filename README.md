@@ -17,7 +17,9 @@ Entity IDs, unique IDs and state values match the original English v1 release, s
 
 ## Account
 
-The EVO-START server keeps one session per login. **Use a separate EVO-START user for Home Assistant**, or the phone app and the integration log each other out.
+The EVO-START server allows one **web** session and one **mobile** session per account. A new login ends the earlier session of the same kind. The Android and iOS apps share the mobile session.
+
+This integration logs in as `web`, so it does not end your phone app's session. 2.0.0 logged in as Android and ended the iPhone app's session. A separate EVO-START user for Home Assistant also avoids any conflict with the web portal.
 
 ## Installation
 
