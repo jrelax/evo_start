@@ -10,8 +10,13 @@
         }
       }
     },
+    "error": {
+      "cannot_connect": "Échec de connexion au serveur EVO-START.",
+      "invalid_auth": "Courriel ou mot de passe invalide.",
+      "unknown": "Une erreur inattendue est survenue."
+    },
     "abort": {
-      "already_configured": "EVO-START est déjà configuré."
+      "already_configured": "Ce compte EVO-START est déjà configuré."
     }
   }
 }

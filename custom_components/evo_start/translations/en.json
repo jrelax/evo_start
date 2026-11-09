@@ -10,8 +10,13 @@
         }
       }
     },
+    "error": {
+      "cannot_connect": "Cannot connect to the EVO-START server.",
+      "invalid_auth": "Invalid email or password.",
+      "unknown": "Unexpected error."
+    },
     "abort": {
-      "already_configured": "EVO-START is already configured."
+      "already_configured": "This EVO-START account is already configured."
     }
   }
 }

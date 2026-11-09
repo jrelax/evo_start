@@ -1,249 +1,143 @@
-"""Plateforme de capteurs pour l'intégration EVO-START."""
+"""Sensor platform for the EVO-START integration."""
+from __future__ import annotations
+
 import logging
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorStateClass,
-)
+from typing import Any, Callable
+
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DOMAIN
+
+from .const import DOMAIN, device_info, vehicle_name
 
 _LOGGER = logging.getLogger(__name__)
 
-SENSOR_TYPES = {
-    "battery": {
-        "name": "Tension de la batterie",
-        "unit": "V",
-        "icon": "mdi:car-battery",
-        "key": "volt",
-        "source": "lloc",
-        "transform": lambda x: round(int(x) / 10.0, 1) if x is not None else None,
-        "device_class": SensorDeviceClass.VOLTAGE,
-        "state_class": SensorStateClass.MEASUREMENT,
-    },
-    "temperature": {
-        "name": "Température du véhicule",
-        "unit": "°C",
-        "icon": "mdi:thermometer",
-        "key": "temp",
-        "source": "lloc",
-        "transform": lambda x: float(x) if x is not None else None,
-        "device_class": SensorDeviceClass.TEMPERATURE,
-        "state_class": SensorStateClass.MEASUREMENT,
-    },
-    "speed": {
-        "name": "Vitesse du véhicule",
-        "unit": "km/h",
-        "icon": "mdi:speedometer",
-        "key": "speed",
-        "source": "lloc",
-        "transform": lambda x: int(x) if x is not None else None,
-        "device_class": SensorDeviceClass.SPEED,
-        "state_class": SensorStateClass.MEASUREMENT,
-    },
-    "mileage": {
-        "name": "Odomètre",
-        "unit": "km",
-        "icon": "mdi:counter",
-        "key": "odometre_km",
-        "source": "trips",
-        "transform": lambda x: round(float(x), 1) if x is not None else 0.0,
-        "device_class": SensorDeviceClass.DISTANCE,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-    },
-    "distance_aujourdhui": {
-        "name": "Distance aujourd'hui",
-        "unit": "km",
-        "icon": "mdi:map-marker-distance",
-        "key": "distance_jour_km",
-        "source": "trips",
-        "transform": lambda x: float(x) if x is not None else 0.0,
-        "device_class": SensorDeviceClass.DISTANCE,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-    },
-    "distance_ce_mois": {
-        "name": "Distance ce mois",
-        "unit": "km",
-        "icon": "mdi:calendar-month-outline",
-        "key": "distance_mois_km",
-        "source": "trips",
-        "transform": lambda x: float(x) if x is not None else 0.0,
-        "device_class": SensorDeviceClass.DISTANCE,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-    },
-    "dernier_trajet_distance": {
-        "name": "Dernier trajet distance",
-        "unit": "km",
-        "icon": "mdi:map-marker-path",
-        "key": "dernier_trajet_km",
-        "source": "trips",
-        "transform": lambda x: float(x) if x is not None else 0.0,
-        "device_class": SensorDeviceClass.DISTANCE,
-        "state_class": None,
-    },
-    "dernier_trajet_vitesse_max": {
-        "name": "Dernier trajet vitesse max",
-        "unit": "km/h",
-        "icon": "mdi:speedometer",
-        "key": "dernier_trajet_vitesse_max",
-        "source": "trips",
-        "transform": lambda x: int(x) if x is not None else 0,
-        "device_class": SensorDeviceClass.SPEED,
-        "state_class": None,
-    },
-    "engine": {
-        "name": "État du moteur",
-        "unit": None,
-        "icon": "mdi:engine",
-        "key": "vcl_eng",
-        "source": "flags",
-        "transform": lambda x: "En marche" if str(x) == "1" else ("Arrêté" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "trunk_status": {
-        "name": "Hayon arrière",
-        "unit": None,
-        "icon": "mdi:car-back",
-        "key": "dor_trk",
-        "source": "flags",
-        "transform": lambda x: "Ouvert" if str(x) == "1" else ("Fermé" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "door_lock_status": {
-        "name": "État des serrures",
-        "unit": None,
-        "icon": "mdi:lock",
-        "key": "vcl_lok",
-        "source": "flags",
-        "transform": lambda x: "Déverrouillé" if str(x) == "1" else ("Verrouillé" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "hood_status": {
-        "name": "Capot moteur",
-        "unit": None,
-        "icon": "mdi:car-hood",
-        "key": "dor_frn",
-        "source": "flags",
-        "transform": lambda x: "Ouvert" if str(x) == "1" else ("Fermé" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "left_front_door": {
-        "name": "Porte avant gauche",
-        "unit": None,
-        "icon": "mdi:car-door",
-        "key": "dor_lf",
-        "source": "flags",
-        "transform": lambda x: "Ouvert" if str(x) == "1" else ("Fermé" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "right_front_door": {
-        "name": "Porte avant droite",
-        "unit": None,
-        "icon": "mdi:car-door",
-        "key": "dor_rf",
-        "source": "flags",
-        "transform": lambda x: "Ouvert" if str(x) == "1" else ("Fermé" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "left_rear_door": {
-        "name": "Porte arrière gauche",
-        "unit": None,
-        "icon": "mdi:car-door",
-        "key": "dor_lb",
-        "source": "flags",
-        "transform": lambda x: "Ouvert" if str(x) == "1" else ("Fermé" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "right_rear_door": {
-        "name": "Porte arrière droite",
-        "unit": None,
-        "icon": "mdi:car-door",
-        "key": "dor_rb",
-        "source": "flags",
-        "transform": lambda x: "Ouvert" if str(x) == "1" else ("Fermé" if str(x) == "0" else "Inconnu"),
-        "device_class": None,
-        "state_class": None,
-    },
-    "satellite_gps": {
-        "name": "Liaison satellite GPS",
-        "unit": None,
-        "icon": "mdi:crosshairs-gps",
-        "key": "gpsol",
-        "source": "lloc",
-        "transform": lambda x: "Verrouillé" if str(x) == "1" else "Non synchronisé",
-        "device_class": None,
-        "state_class": None,
-    },
-    "gsm_signal": {
-        "name": "Réseau cellulaire GSM",
-        "unit": None,
-        "icon": "mdi:signal",
-        "key": "gsmol",
-        "source": "lloc",
-        "transform": lambda x: "Connecté" if str(x) == "1" else "Déconnecté",
-        "device_class": None,
-        "state_class": None,
-    },
+
+def _open_closed(x: Any) -> str:
+    return "🔓 Open" if str(x) == "1" else ("🔒 Closed" if str(x) == "0" else "❓ Unknown")
+
+
+def _sensor(
+    name: str,
+    icon: str,
+    key: str,
+    source: str,
+    transform: Callable[[Any], Any],
+    unit: str | None = None,
+    device_class: SensorDeviceClass | None = None,
+    state_class: SensorStateClass | None = None,
+) -> dict[str, Any]:
+    return {
+        "name": name, "icon": icon, "key": key, "source": source, "transform": transform,
+        "unit": unit, "device_class": device_class, "state_class": state_class,
+    }
+
+
+SENSOR_TYPES: dict[str, dict[str, Any]] = {
+    "battery": _sensor(
+        "Battery Voltage", "mdi:car-battery", "volt", "lloc", lambda x: round(int(x) / 10, 1),
+        "V", SensorDeviceClass.VOLTAGE, SensorStateClass.MEASUREMENT,
+    ),
+    "temperature": _sensor(
+        "Vehicle Temperature", "mdi:thermometer", "temp", "lloc", float,
+        "°C", None, SensorStateClass.MEASUREMENT,
+    ),
+    "mileage": _sensor(
+        "Vehicle Mileage", "mdi:counter", "mileage", "lloc", int,
+        "km", None, SensorStateClass.TOTAL_INCREASING,
+    ),
+    "speed": _sensor(
+        "Vehicle Speed", "mdi:speedometer", "speed", "lloc", int,
+        "km/h", None, SensorStateClass.MEASUREMENT,
+    ),
+    "gps_online": _sensor(
+        "GPS Online", "mdi:crosshairs-gps", "gpsol", "lloc",
+        lambda x: "📍 Connected" if x == "1" else "❌ Offline",
+    ),
+    "gsm_status": _sensor(
+        "GSM Signal", "mdi:signal", "gsmol", "lloc",
+        lambda x: "📶 OK" if x == "1" else "❌ No Signal",
+    ),
+    "engine": _sensor(
+        "Engine Status", "mdi:engine", "vcl_eng", "flags",
+        lambda x: "🟢 On" if str(x) == "1" else ("🔴 Off" if str(x) == "0" else "❓ Unknown"),
+    ),
+    "trunk_status": _sensor("Trunk Status", "mdi:car-back", "dor_trk", "flags", _open_closed),
+    "door_lock_status": _sensor(
+        "Door Lock Status", "mdi:lock", "vcl_lok", "flags",
+        lambda x: "🔓 Unlocked" if str(x) == "1" else ("🔒 Locked" if str(x) == "0" else "❓ Unknown"),
+    ),
+    "hood_status": _sensor("Hood Status", "mdi:car-hood", "dor_frn", "flags", _open_closed),
+    "left_front_door": _sensor("Left Front Door", "mdi:car-door", "dor_lf", "flags", _open_closed),
+    "right_front_door": _sensor("Right Front Door", "mdi:car-door", "dor_rf", "flags", _open_closed),
+    "left_rear_door": _sensor("Left Rear Door", "mdi:car-door", "dor_lb", "flags", _open_closed),
+    "right_rear_door": _sensor("Right Rear Door", "mdi:car-door", "dor_rb", "flags", _open_closed),
+    "trip_odometer": _sensor(
+        "Trip Odometer", "mdi:counter", "odometer_km", "trips", float,
+        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING,
+    ),
+    "distance_today": _sensor(
+        "Distance Today", "mdi:map-marker-distance", "distance_today_km", "trips", float,
+        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING,
+    ),
+    "distance_this_month": _sensor(
+        "Distance This Month", "mdi:calendar-month-outline", "distance_month_km", "trips", float,
+        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING,
+    ),
+    "trips_today": _sensor(
+        "Trips Today", "mdi:car-clock", "trips_today", "trips", int,
+        None, None, SensorStateClass.TOTAL_INCREASING,
+    ),
+    "last_trip_distance": _sensor(
+        "Last Trip Distance", "mdi:map-marker-path", "last_trip_km", "trips", float,
+        "km", SensorDeviceClass.DISTANCE,
+    ),
+    "last_trip_max_speed": _sensor(
+        "Last Trip Max Speed", "mdi:speedometer", "last_trip_max_speed", "trips", int,
+        "km/h", SensorDeviceClass.SPEED,
+    ),
 }
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    entities = []
-    for vehicle_id in coordinator.get_all_vehicle_ids():
-        vehicle_data = coordinator.get_vehicle_data(vehicle_id) or {}
-        vehicle_name = vehicle_data.get("carinfo", {}).get("cname", f"Véhicule {vehicle_id}")
-        for sensor_id, sensor_cfg in SENSOR_TYPES.items():
-            entities.append(EvoStartSensor(coordinator, vehicle_id, sensor_id, sensor_cfg, vehicle_name))
-    async_add_entities(entities)
+    async_add_entities(
+        EvoStartSensor(coordinator, vehicle_id, sensor_id, cfg, vehicle_name(coordinator, vehicle_id))
+        for vehicle_id in coordinator.get_all_vehicle_ids()
+        for sensor_id, cfg in SENSOR_TYPES.items()
+    )
 
 
 class EvoStartSensor(CoordinatorEntity, SensorEntity):
-    def __init__(self, coordinator, vehicle_id, sensor_id, sensor_cfg, vehicle_name):
+    def __init__(self, coordinator, vehicle_id, sensor_id, sensor_cfg, name):
         super().__init__(coordinator)
         self._vehicle_id = vehicle_id
         self._sensor_id = sensor_id
         self._cfg = sensor_cfg
-        self._vehicle_name = vehicle_name
-        self._attr_name = f"{vehicle_name} {sensor_cfg['name']}"
+        self._attr_name = f"EVO-START {name} {sensor_cfg['name']}"
         self._attr_unique_id = f"evo_start_{vehicle_id}_{sensor_id}"
         self._attr_icon = sensor_cfg["icon"]
         self._attr_native_unit_of_measurement = sensor_cfg["unit"]
-        self._attr_device_class = sensor_cfg.get("device_class")
-        self._attr_state_class = sensor_cfg.get("state_class")
+        self._attr_device_class = sensor_cfg["device_class"]
+        self._attr_state_class = sensor_cfg["state_class"]
+        self._attr_device_info = device_info(vehicle_id, name)
 
     @property
     def native_value(self):
-        source = self._cfg.get("source", "lloc")
+        source = self._cfg["source"]
         key = self._cfg["key"]
-        raw = None
-        try:
-            if source == "trips":
-                trips = self.coordinator.get_vehicle_trips(self._vehicle_id)
-                raw = trips.get(key)
-            elif source == "flags":
-                flags = self.coordinator.get_vehicle_flags(self._vehicle_id)
-                raw = flags.get(key)
+        if source == "trips":
+            raw = self.coordinator.get_vehicle_trips(self._vehicle_id).get(key)
+        else:
+            vehicle_data = self.coordinator.get_vehicle_data(self._vehicle_id)
+            vehicle_flags = self.coordinator.get_vehicle_flags(self._vehicle_id)
+            if not vehicle_data or not vehicle_flags:
+                return None
+            if source == "flags":
+                raw = vehicle_flags.get(key)
             else:
-                data = self.coordinator.get_vehicle_data(self._vehicle_id) or {}
-                raw = data.get("lloc", {}).get(key)
+                raw = vehicle_data["lloc"].get(key)
+        try:
             return self._cfg["transform"](raw)
-        except Exception as e:
-            _LOGGER.debug("Erreur extraction capteur %s: %s", self._sensor_id, e)
+        except (TypeError, ValueError) as err:
+            _LOGGER.debug("Cannot parse %s for %s: %s", key, self._vehicle_id, err)
             return None
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, f"evo_start_vehicle_{self._vehicle_id}")},
-            "name": self._vehicle_name,
-            "manufacturer": "Fortin",
-            "model": "EVO-START",
-        }
