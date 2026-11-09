@@ -2,21 +2,21 @@
   "config": {
     "step": {
       "user": {
-        "title": "EVO-START",
-        "description": "Entrez vos identifiants EVO-START pour connecter votre véhicule.",
+        "title": "EVO-START Account",
+        "description": "Enter your EVO-START credentials.",
         "data": {
-          "email": "Courriel",
-          "password": "Mot de passe"
+          "email": "Email",
+          "password": "Password"
         }
       }
     },
     "error": {
-      "cannot_connect": "Échec de connexion au serveur EVO-START.",
-      "invalid_auth": "Identifiants ou mot de passe invalides.",
-      "unknown": "Une erreur inattendue est survenue."
+      "cannot_connect": "Cannot connect to the EVO-START server.",
+      "invalid_auth": "Invalid email or password.",
+      "unknown": "Unexpected error."
     },
     "abort": {
-      "already_configured": "Ce compte EVO-START est déjà configuré dans Home Assistant."
+      "already_configured": "This EVO-START account is already configured."
     }
   }
 }
