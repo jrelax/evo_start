@@ -23,4 +23,25 @@ This integration logs in as `web`, so it does not end your phone app's session. 
 
 ## Installation
 
-Copy `custom_components/evo_start` to `/config/custom_components/`, restart, then add **EVO-START** under Settings › Devices & Services.
+### Marketplace (Home Assistant 2026.11 and later)
+
+The Marketplace replaces HACS. Its catalog lists the upstream `CLARENNE-Q/evo_start` (2.0.0, French). Add this repository as a custom repository to install this version.
+
+1. If EVO-START is installed from the catalog, uninstall it in the **Marketplace**. Your config entry and entities stay.
+2. Open **Marketplace** in the sidebar. Connect it to GitHub if it asks: custom repositories need the connection.
+3. Add the custom repository `https://github.com/jrelax/evo_start`, type **Integration**.
+4. Open **EVO-START** and install it.
+5. Restart Home Assistant.
+6. Add **EVO-START** under **Settings › Devices & Services**, or enable your existing entry.
+
+The Marketplace installs the newest release, or the default branch when the repository has no releases.
+
+### Manual
+
+1. Copy `custom_components/evo_start` to `/config/custom_components/`.
+2. Restart Home Assistant.
+3. Add **EVO-START** under **Settings › Devices & Services**.
+
+### Upgrading from 2.0.0
+
+At setup, the integration changes the 2.0.0 unique IDs to the English ones. Your entity IDs and history stay. If both v1 and 2.0.0 entities are registered, it removes the 2.0.0 duplicates. It imports the trip odometer from `evo_start_odometer.json`.
