@@ -67,12 +67,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 class EvoStartDeviceTracker(CoordinatorEntity, TrackerEntity):
     _attr_icon = "mdi:car"
+    _attr_has_entity_name = True
+    _attr_name = None
 
     def __init__(self, coordinator, vehicle_id, name):
         super().__init__(coordinator)
         self._vehicle_id = vehicle_id
         self._attr_unique_id = f"evo_start_vehicle_tracker_{vehicle_id}"
-        self._attr_name = f"EVO-START {name}"
         self._attr_device_info = device_info(vehicle_id, name)
 
     @property

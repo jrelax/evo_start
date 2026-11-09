@@ -22,6 +22,8 @@ The integration polls the cloud every 60 seconds. The car name comes from the na
 
 Distance, speed and temperature follow the Home Assistant unit system: mi, mph and °F on US customary, km, km/h and °C on metric. To change one sensor, set its unit in the entity settings.
 
+Entity names, the setup form and error messages are translated into English, French and Spanish, and follow the Home Assistant language. Sensor states such as `🔒 Locked` and `🟢 On` stay as they are, so automations that match them keep working.
+
 There is no fuel economy (MPG) sensor. The module's trip fuel value is a fixed fraction of the trip distance, the same for every vehicle, so it is an estimate, not a measurement.
 
 ## Account and sessions
@@ -51,7 +53,8 @@ The Marketplace replaces HACS. Its catalog lists the upstream repository, not th
 
 ## Upgrading
 
-- **From the original English release:** a drop-in upgrade. Unique IDs, entity IDs and states do not change. The trip sensors are new.
+- **From the original English release:** a drop-in upgrade. Unique IDs, entity IDs and states do not change. Display names lose the `EVO-START` prefix and use the car name, for example `A4 Battery voltage`. The trip sensors are new.
+- **New installs** get entity IDs from the car name, for example `sensor.audi_a4_b8_battery_voltage`.
 - **From upstream 2.0.0 (French):** at setup, the integration changes the 2.0.0 unique IDs to the English ones, so entity IDs and history stay. If both sets of entities are registered, it removes the 2.0.0 duplicates. It imports the trip odometer from `evo_start_odometer.json`.
 
 ## Changes from upstream 2.0.0

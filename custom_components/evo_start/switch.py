@@ -31,11 +31,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 class EvoStartEngineSwitch(CoordinatorEntity, SwitchEntity):
     _attr_icon = "mdi:car-key"
+    _attr_has_entity_name = True
+    _attr_translation_key = "remote_start"
 
     def __init__(self, coordinator, vehicle_id, name):
         super().__init__(coordinator)
         self._vehicle_id = vehicle_id
-        self._attr_name = f"EVO-START {name} Remote Start"
         self._attr_unique_id = f"evo_start_{vehicle_id}_engine_switch"
         self._attr_device_info = device_info(vehicle_id, name)
         self._command_lock = asyncio.Lock()
@@ -77,11 +78,11 @@ class EvoStartEngineSwitch(CoordinatorEntity, SwitchEntity):
         async with self._command_lock:
             flags = self.coordinator.get_vehicle_flags(self._vehicle_id)
             if turn_on and flags.get("dor_frn") == "1":
-                raise HomeAssistantError("Remote start refused: the hood is open")
+                raise HomeAssistantError(translation_domain=DOMAIN, translation_key="hood_open")
             command = self.coordinator.async_remote_start if turn_on else self.coordinator.async_remote_stop
             if not await command(self._vehicle_id):
                 raise HomeAssistantError(
-                    f"EVO-START did not confirm the remote {'start' if turn_on else 'stop'} command"
+                    translation_domain=DOMAIN, translation_key="start_failed" if turn_on else "stop_failed"
                 )
             self._pending = turn_on
             self._pending_until = time.monotonic() + PENDING_SECONDS

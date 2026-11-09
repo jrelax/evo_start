@@ -25,13 +25,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class EvoStartLock(CoordinatorEntity, LockEntity):
-    _attr_should_poll = False
     _attr_icon = "mdi:lock"
+    _attr_has_entity_name = True
+    _attr_translation_key = "central_lock"
 
     def __init__(self, coordinator, vehicle_id, name):
         super().__init__(coordinator)
         self._vehicle_id = vehicle_id
-        self._attr_name = f"EVO-START {name} Central Lock"
         self._attr_unique_id = f"evo_start_{vehicle_id}_vcl_lok"
         self._attr_device_info = device_info(vehicle_id, name)
         self._command_lock = asyncio.Lock()
@@ -53,7 +53,7 @@ class EvoStartLock(CoordinatorEntity, LockEntity):
             return
         async with self._command_lock:
             if not await command(self._vehicle_id):
-                raise HomeAssistantError(f"EVO-START did not confirm the {label} command")
+                raise HomeAssistantError(translation_domain=DOMAIN, translation_key=f"{label}_failed")
             await asyncio.sleep(REFRESH_DELAY_SECONDS)
             await self.coordinator.async_request_refresh()
 
