@@ -14,6 +14,7 @@ Each vehicle on the account becomes one device with these entities:
 | sensor | Engine Status, Door Lock Status, Hood Status, Trunk Status, 4 door sensors, GPS Online, GSM Signal | Text states, for example `🔒 Locked`, `🟢 On`, `🔓 Open` |
 | sensor | Trip Odometer, Distance Today, Distance This Month, Trips Today, Last Trip Distance, Last Trip Max Speed | From the trip history. Trip Odometer starts with the current month's trips. |
 | lock | Central Lock | Lock and unlock |
+| switch | Remote Start | On while the engine runs. Turn on to start, off to stop. Keeps the requested state for up to 2 minutes while the module reports back. Use this one in HomeKit and Google Home: a button shows there as a switch that turns itself off. |
 | button | Remote Start, Remote Stop | Start shows only when the engine is off, Stop only when it is on. Start is refused while the hood is open. |
 | device_tracker | Vehicle position | Status flags as attributes. A (0, 0) position is ignored. |
 
