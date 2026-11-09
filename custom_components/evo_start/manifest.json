@@ -7,6 +7,5 @@
   "integration_type": "hub",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/jrelax/evo_start/issues",
-  "requirements": [],
   "codeowners": ["@CLARENNE-Q"]
 }

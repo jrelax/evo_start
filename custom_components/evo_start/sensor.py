@@ -134,7 +134,6 @@ class EvoStartSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, vehicle_id, sensor_id, sensor_cfg, name):
         super().__init__(coordinator)
         self._vehicle_id = vehicle_id
-        self._sensor_id = sensor_id
         self._cfg = sensor_cfg
         self._attr_name = f"EVO-START {name} {sensor_cfg['name']}"
         self._attr_unique_id = f"evo_start_{vehicle_id}_{sensor_id}"

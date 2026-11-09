@@ -25,7 +25,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class EvoStartLock(CoordinatorEntity, LockEntity):
-    _attr_should_poll = False
     _attr_icon = "mdi:lock"
 
     def __init__(self, coordinator, vehicle_id, name):

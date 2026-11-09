@@ -250,7 +250,6 @@ class EvoStartCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "carinfo": row.get("carinfo") or {},
                 "dev_name": row.get("dev_name"),
                 "expire_date": row.get("expire_date"),
-                "tid": tid,
             }
             flags[tid] = self.decode_vst(lloc.get("vst", ""))
             try:
@@ -265,7 +264,7 @@ class EvoStartCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return {"vehicles": vehicles, "flags": flags, "trips": trips}
 
     @staticmethod
-    def decode_vst(vst: str) -> dict[str, str | None]:
+    def decode_vst(vst: str) -> dict[str, str]:
         if not vst:
             return {}
         try:
@@ -273,11 +272,8 @@ class EvoStartCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except ValueError:
             _LOGGER.debug("Invalid VST value: %s", vst)
             return {}
-        flags: dict[str, str | None] = {}
+        flags: dict[str, str] = {}
         for key, idx in BIT_FIELDS.items():
-            if idx >= len(bits):
-                flags[key] = None
-                continue
             bit = bits[idx]
             if key in INVERTED_FLAGS:
                 bit = "0" if bit == "1" else "1"
