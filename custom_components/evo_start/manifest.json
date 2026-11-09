@@ -1,7 +1,7 @@
 {
   "domain": "evo_start",
   "name": "EVO-START",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "config_flow": true,
   "documentation": "https://github.com/jrelax/evo_start",
   "integration_type": "hub",

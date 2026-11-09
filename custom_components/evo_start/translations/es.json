@@ -1,0 +1,144 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cuenta EVO-START",
+        "description": "Introduzca sus credenciales de EVO-START.",
+        "data": {
+          "email": "Correo electrónico",
+          "password": "Contraseña"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No se puede conectar con el servidor de EVO-START.",
+      "invalid_auth": "Correo electrónico o contraseña no válidos.",
+      "unknown": "Error inesperado."
+    },
+    "abort": {
+      "already_configured": "Esta cuenta de EVO-START ya está configurada."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Voltaje de la batería"
+      },
+      "temperature": {
+        "name": "Temperatura del vehículo"
+      },
+      "mileage": {
+        "name": "Kilometraje del vehículo"
+      },
+      "speed": {
+        "name": "Velocidad del vehículo"
+      },
+      "gps_online": {
+        "name": "GPS en línea"
+      },
+      "gsm_status": {
+        "name": "Señal GSM"
+      },
+      "engine": {
+        "name": "Estado del motor"
+      },
+      "trunk_status": {
+        "name": "Estado del maletero"
+      },
+      "door_lock_status": {
+        "name": "Estado del cierre"
+      },
+      "hood_status": {
+        "name": "Estado del capó"
+      },
+      "left_front_door": {
+        "name": "Puerta delantera izquierda"
+      },
+      "right_front_door": {
+        "name": "Puerta delantera derecha"
+      },
+      "left_rear_door": {
+        "name": "Puerta trasera izquierda"
+      },
+      "right_rear_door": {
+        "name": "Puerta trasera derecha"
+      },
+      "trip_odometer": {
+        "name": "Odómetro de viajes"
+      },
+      "distance_today": {
+        "name": "Distancia hoy"
+      },
+      "distance_this_month": {
+        "name": "Distancia este mes"
+      },
+      "trips_today": {
+        "name": "Viajes hoy"
+      },
+      "last_trip_distance": {
+        "name": "Distancia del último viaje"
+      },
+      "last_trip_max_speed": {
+        "name": "Velocidad máxima del último viaje"
+      },
+      "last_trip_duration": {
+        "name": "Duración del último viaje"
+      },
+      "last_trip_from": {
+        "name": "Origen del último viaje"
+      },
+      "last_trip_to": {
+        "name": "Destino del último viaje"
+      },
+      "last_report": {
+        "name": "Último reporte"
+      },
+      "subscription_expires": {
+        "name": "Vencimiento de la suscripción"
+      }
+    },
+    "lock": {
+      "central_lock": {
+        "name": "Cierre centralizado"
+      }
+    },
+    "button": {
+      "remote_start": {
+        "name": "Arranque remoto"
+      },
+      "remote_stop": {
+        "name": "Parada remota"
+      }
+    },
+    "switch": {
+      "remote_start": {
+        "name": "Arranque remoto",
+        "state_attributes": {
+          "engine_reported_on": {
+            "name": "Motor reportado encendido"
+          },
+          "command_pending": {
+            "name": "Comando pendiente"
+          }
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "hood_open": {
+      "message": "Arranque remoto rechazado: el capó está abierto"
+    },
+    "start_failed": {
+      "message": "EVO-START no confirmó el comando de arranque remoto"
+    },
+    "stop_failed": {
+      "message": "EVO-START no confirmó el comando de parada remota"
+    },
+    "lock_failed": {
+      "message": "EVO-START no confirmó el comando de bloqueo"
+    },
+    "unlock_failed": {
+      "message": "EVO-START no confirmó el comando de desbloqueo"
+    }
+  }
+}

@@ -15,8 +15,8 @@ _LOGGER = logging.getLogger(__name__)
 REFRESH_DELAY_SECONDS = 3
 
 BUTTON_TYPES = {
-    "remote_start": {"name": "Remote Start", "icon": "mdi:car-key", "action": "start"},
-    "remote_stop": {"name": "Remote Stop", "icon": "mdi:car-off", "action": "stop"},
+    "remote_start": {"icon": "mdi:car-key", "action": "start"},
+    "remote_stop": {"icon": "mdi:car-off", "action": "stop"},
 }
 
 
@@ -30,11 +30,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class EvoStartButton(CoordinatorEntity, ButtonEntity):
+    _attr_has_entity_name = True
+
     def __init__(self, coordinator, vehicle_id, button_id, button_cfg, name):
         super().__init__(coordinator)
         self._vehicle_id = vehicle_id
         self._action = button_cfg["action"]
-        self._attr_name = f"EVO-START {name} {button_cfg['name']}"
+        self._attr_translation_key = button_id
         self._attr_unique_id = f"evo_start_{vehicle_id}_{button_id}"
         self._attr_icon = button_cfg["icon"]
         self._attr_device_info = device_info(vehicle_id, name)
@@ -56,14 +58,14 @@ class EvoStartButton(CoordinatorEntity, ButtonEntity):
         async with self._command_lock:
             flags = self.coordinator.get_vehicle_flags(self._vehicle_id)
             if self._action == "start" and flags.get("dor_frn") == "1":
-                raise HomeAssistantError("Remote start refused: the hood is open")
+                raise HomeAssistantError(translation_domain=DOMAIN, translation_key="hood_open")
 
             if self._action == "start":
                 ok = await self.coordinator.async_remote_start(self._vehicle_id)
             else:
                 ok = await self.coordinator.async_remote_stop(self._vehicle_id)
             if not ok:
-                raise HomeAssistantError(f"EVO-START did not confirm the remote {self._action} command")
+                raise HomeAssistantError(translation_domain=DOMAIN, translation_key=f"{self._action}_failed")
 
             await asyncio.sleep(REFRESH_DELAY_SECONDS)
             await self.coordinator.async_request_refresh()

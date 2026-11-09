@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "EVO-START Account",
+        "title": "EVO-START account",
         "description": "Enter your EVO-START credentials.",
         "data": {
           "email": "Email",
@@ -17,6 +17,128 @@
     },
     "abort": {
       "already_configured": "This EVO-START account is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Battery voltage"
+      },
+      "temperature": {
+        "name": "Vehicle temperature"
+      },
+      "mileage": {
+        "name": "Vehicle mileage"
+      },
+      "speed": {
+        "name": "Vehicle speed"
+      },
+      "gps_online": {
+        "name": "GPS online"
+      },
+      "gsm_status": {
+        "name": "GSM signal"
+      },
+      "engine": {
+        "name": "Engine status"
+      },
+      "trunk_status": {
+        "name": "Trunk status"
+      },
+      "door_lock_status": {
+        "name": "Door lock status"
+      },
+      "hood_status": {
+        "name": "Hood status"
+      },
+      "left_front_door": {
+        "name": "Left front door"
+      },
+      "right_front_door": {
+        "name": "Right front door"
+      },
+      "left_rear_door": {
+        "name": "Left rear door"
+      },
+      "right_rear_door": {
+        "name": "Right rear door"
+      },
+      "trip_odometer": {
+        "name": "Trip odometer"
+      },
+      "distance_today": {
+        "name": "Distance today"
+      },
+      "distance_this_month": {
+        "name": "Distance this month"
+      },
+      "trips_today": {
+        "name": "Trips today"
+      },
+      "last_trip_distance": {
+        "name": "Last trip distance"
+      },
+      "last_trip_max_speed": {
+        "name": "Last trip top speed"
+      },
+      "last_trip_duration": {
+        "name": "Last trip duration"
+      },
+      "last_trip_from": {
+        "name": "Last trip from"
+      },
+      "last_trip_to": {
+        "name": "Last trip to"
+      },
+      "last_report": {
+        "name": "Last report"
+      },
+      "subscription_expires": {
+        "name": "Subscription expires"
+      }
+    },
+    "lock": {
+      "central_lock": {
+        "name": "Central lock"
+      }
+    },
+    "button": {
+      "remote_start": {
+        "name": "Remote start"
+      },
+      "remote_stop": {
+        "name": "Remote stop"
+      }
+    },
+    "switch": {
+      "remote_start": {
+        "name": "Remote start",
+        "state_attributes": {
+          "engine_reported_on": {
+            "name": "Engine reported on"
+          },
+          "command_pending": {
+            "name": "Command pending"
+          }
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "hood_open": {
+      "message": "Remote start refused: the hood is open"
+    },
+    "start_failed": {
+      "message": "EVO-START did not confirm the remote start command"
+    },
+    "stop_failed": {
+      "message": "EVO-START did not confirm the remote stop command"
+    },
+    "lock_failed": {
+      "message": "EVO-START did not confirm the lock command"
+    },
+    "unlock_failed": {
+      "message": "EVO-START did not confirm the unlock command"
     }
   }
 }

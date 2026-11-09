@@ -18,5 +18,127 @@
     "abort": {
       "already_configured": "Ce compte EVO-START est déjà configuré."
     }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Tension de la batterie"
+      },
+      "temperature": {
+        "name": "Température du véhicule"
+      },
+      "mileage": {
+        "name": "Kilométrage du véhicule"
+      },
+      "speed": {
+        "name": "Vitesse du véhicule"
+      },
+      "gps_online": {
+        "name": "GPS en ligne"
+      },
+      "gsm_status": {
+        "name": "Signal GSM"
+      },
+      "engine": {
+        "name": "État du moteur"
+      },
+      "trunk_status": {
+        "name": "État du coffre"
+      },
+      "door_lock_status": {
+        "name": "État du verrouillage"
+      },
+      "hood_status": {
+        "name": "État du capot"
+      },
+      "left_front_door": {
+        "name": "Porte avant gauche"
+      },
+      "right_front_door": {
+        "name": "Porte avant droite"
+      },
+      "left_rear_door": {
+        "name": "Porte arrière gauche"
+      },
+      "right_rear_door": {
+        "name": "Porte arrière droite"
+      },
+      "trip_odometer": {
+        "name": "Compteur de trajets"
+      },
+      "distance_today": {
+        "name": "Distance aujourd'hui"
+      },
+      "distance_this_month": {
+        "name": "Distance ce mois-ci"
+      },
+      "trips_today": {
+        "name": "Trajets aujourd'hui"
+      },
+      "last_trip_distance": {
+        "name": "Distance du dernier trajet"
+      },
+      "last_trip_max_speed": {
+        "name": "Vitesse max du dernier trajet"
+      },
+      "last_trip_duration": {
+        "name": "Durée du dernier trajet"
+      },
+      "last_trip_from": {
+        "name": "Départ du dernier trajet"
+      },
+      "last_trip_to": {
+        "name": "Arrivée du dernier trajet"
+      },
+      "last_report": {
+        "name": "Dernier rapport"
+      },
+      "subscription_expires": {
+        "name": "Expiration de l'abonnement"
+      }
+    },
+    "lock": {
+      "central_lock": {
+        "name": "Verrouillage central"
+      }
+    },
+    "button": {
+      "remote_start": {
+        "name": "Démarrage à distance"
+      },
+      "remote_stop": {
+        "name": "Arrêt à distance"
+      }
+    },
+    "switch": {
+      "remote_start": {
+        "name": "Démarrage à distance",
+        "state_attributes": {
+          "engine_reported_on": {
+            "name": "Moteur signalé en marche"
+          },
+          "command_pending": {
+            "name": "Commande en attente"
+          }
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "hood_open": {
+      "message": "Démarrage à distance refusé : le capot est ouvert"
+    },
+    "start_failed": {
+      "message": "EVO-START n'a pas confirmé la commande de démarrage à distance"
+    },
+    "stop_failed": {
+      "message": "EVO-START n'a pas confirmé la commande d'arrêt à distance"
+    },
+    "lock_failed": {
+      "message": "EVO-START n'a pas confirmé la commande de verrouillage"
+    },
+    "unlock_failed": {
+      "message": "EVO-START n'a pas confirmé la commande de déverrouillage"
+    }
   }
 }
