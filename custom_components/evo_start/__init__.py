@@ -34,19 +34,31 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
-@callback
-def _migrate_v2_unique_id(entity: er.RegistryEntry) -> dict | None:
-    uid = entity.unique_id
+def _v1_unique_id(uid: str) -> str | None:
     if uid.startswith(V2_TRACKER_PREFIX):
-        return {"new_unique_id": "evo_start_vehicle_tracker_" + uid[len(V2_TRACKER_PREFIX):]}
+        return "evo_start_vehicle_tracker_" + uid[len(V2_TRACKER_PREFIX):]
     for old, new in V2_UNIQUE_ID_SUFFIXES.items():
         if uid.startswith("evo_start_") and uid.endswith(old):
-            return {"new_unique_id": uid[: -len(old)] + new}
+            return uid[: -len(old)] + new
     return None
 
 
+@callback
+def _migrate_v2_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Rename 2.0.0 unique IDs; drop a 2.0.0 entity whose v1 twin is still registered."""
+    registry = er.async_get(hass)
+    for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
+        new_uid = _v1_unique_id(entity.unique_id)
+        if new_uid is None:
+            continue
+        if registry.async_get_entity_id(entity.domain, DOMAIN, new_uid):
+            registry.async_remove(entity.entity_id)
+        else:
+            registry.async_update_entity(entity.entity_id, new_unique_id=new_uid)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    await er.async_migrate_entries(hass, entry.entry_id, _migrate_v2_unique_id)
+    _migrate_v2_entities(hass, entry)
     coordinator = EvoStartCoordinator(
         hass, entry, entry.data[CONF_EMAIL], entry.data[CONF_PASSWORD]
     )
