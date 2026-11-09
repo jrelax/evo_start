@@ -5,6 +5,7 @@ from typing import Any
 
 from homeassistant.components.device_tracker import SourceType, TrackerEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, device_info, vehicle_name
 
@@ -105,6 +106,12 @@ class EvoStartDeviceTracker(CoordinatorEntity, TrackerEntity):
             attributes[FLAG_LABELS.get(key, key)] = state
         lloc = self._lloc()
         attributes["speed_kmh"] = lloc.get("speed")
-        attributes["gps_time"] = lloc.get("gpstime")
-        attributes["heading"] = lloc.get("direction")
+        try:
+            attributes["gps_time"] = dt_util.utc_from_timestamp(int(lloc["tdt"])).isoformat()
+        except (KeyError, TypeError, ValueError):
+            attributes["gps_time"] = None
+        try:
+            attributes["heading"] = int(lloc["dir"])
+        except (KeyError, TypeError, ValueError):
+            attributes["heading"] = None
         return attributes

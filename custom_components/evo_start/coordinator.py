@@ -216,6 +216,11 @@ class EvoStartCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "trips_today": len(today_rows),
             "last_trip_km": round(int(last["trip"]) / 1000.0, 2) if "trip" in last else None,
             "last_trip_max_speed": int(last["top"]) if "top" in last else None,
+            "last_trip_from": last.get("bgaddr") or None,
+            "last_trip_to": last.get("edaddr") or None,
+            "last_trip_duration_min": (
+                round((int(last["edtdt"]) - int(last["bgtdt"])) / 60) if "edtdt" in last and "bgtdt" in last else None
+            ),
         }
 
     def _fallback_trips(self, tid: str) -> dict[str, Any]:
@@ -244,6 +249,7 @@ class EvoStartCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "lloc": lloc,
                 "carinfo": row.get("carinfo") or {},
                 "dev_name": row.get("dev_name"),
+                "expire_date": row.get("expire_date"),
                 "tid": tid,
             }
             flags[tid] = self.decode_vst(lloc.get("vst", ""))
