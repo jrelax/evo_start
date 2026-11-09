@@ -49,15 +49,15 @@ SENSOR_TYPES: dict[str, dict[str, Any]] = {
     ),
     "temperature": _sensor(
         "Vehicle Temperature", "mdi:thermometer", "temp", "lloc", float,
-        "°C", None, SensorStateClass.MEASUREMENT,
+        "°C", SensorDeviceClass.TEMPERATURE, SensorStateClass.MEASUREMENT, 0,
     ),
     "mileage": _sensor(
         "Vehicle Mileage", "mdi:counter", "mileage", "lloc", int,
-        "km", None, SensorStateClass.TOTAL_INCREASING,
+        "km", SensorDeviceClass.DISTANCE, SensorStateClass.TOTAL_INCREASING, 0,
     ),
     "speed": _sensor(
         "Vehicle Speed", "mdi:speedometer", "speed", "lloc", int,
-        "km/h", None, SensorStateClass.MEASUREMENT,
+        "km/h", SensorDeviceClass.SPEED, SensorStateClass.MEASUREMENT, 0,
     ),
     "gps_online": _sensor(
         "GPS Online", "mdi:crosshairs-gps", "gpsol", "lloc",
